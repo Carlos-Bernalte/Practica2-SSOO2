@@ -1,13 +1,13 @@
 /*********************************************
-*   Project: Práctica 1 de Sistemas Operativos II 
+*   Project: Práctica 2 de Sistemas Operativos II 
 *
-*   Program name: manager.c
+*   Program name: ssooiigle.c
 *
 *   Author: Carlos Bernalte García-Junco
 *
 *   Date created: 19-03-2021
 *
-*   Porpuse: Busqueda de una palabra en un fichero divido en hilos para agilizar la busqueda.
+*   Porpuse: Busqueda de una palabra en un fichero divido en hilos para agilizar el proceso.
 *
 *   Revision History: Se puede encontrar en el repositorio de GitHub.
 |*********************************************/
@@ -26,7 +26,7 @@
 #include <definitions.h>
 
 #include <colours.h>
-#include "Palabra.cpp"
+#include "WordSearched.cpp"
 
 void arguments_control(char *argv[],std::string &file, std::string &objective, int &nThreads);
 int number_of_lines(std::string file);
@@ -38,7 +38,7 @@ void printResult();
 
 std::mutex access;
 std::vector<std::thread> vThreads;
-std::map<int,std::vector<Palabra>> vPalabras;
+std::map<int,std::vector<WordSearched>> vWords;
 
 /* El main se encargara de la creación de hilos y su finalización*/
 int main(int argc, char *argv[]){
@@ -128,9 +128,9 @@ void find_word(int thread,std::vector<std::string> assignedLines, int begin, int
                 }else{
                     solution[2]=line[position+1];
                 }
-                Palabra wordFounded(objective, thread, begin, end, nLine+begin, solution[0], solution[1], solution[2]);
+                WordSearched wordFounded(objective, thread, begin, end, nLine+begin, solution[0], solution[1], solution[2]);
                 std::lock_guard<std::mutex> semaphore(access); //Aquí bloquearemos el acceso a la estructura de datos
-                vPalabras[thread].push_back(wordFounded);
+                vWords[thread].push_back(wordFounded);
             }
             solution[0]=line[position];//Las palabras ya leidas paran a la varible palabra anterior.
         }
@@ -178,9 +178,9 @@ std::map<int,std::vector<std::string>> shareLines(std::string file, int nLines, 
 }
 /* Mostrará el resultado por pantalla*/
 void printResult(){
-    for (std::size_t i = 0; i < vPalabras.size(); i++){
-        for (std::size_t j = 0; j < vPalabras[i].size(); j++){
-            vPalabras[i][j].toString();
+    for (std::size_t i = 0; i < vWords.size(); i++){
+        for (std::size_t j = 0; j < vWords[i].size(); j++){
+            vWords[i][j].toString();
         }   
     }
 }
