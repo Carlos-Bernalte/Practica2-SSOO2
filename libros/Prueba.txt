@@ -1,0 +1,7 @@
+Hola esto es una prueba chiquita
+de muy pocas lineas el archivo
+para saber si los hilos pillan la palabra "lineas"
+gracias a las lineas escritas en codigo
+lineas lineas jejeje esto era para comprobar si se detectan
+en las mismas lineas la palabra LINEAS.
+Adios!!

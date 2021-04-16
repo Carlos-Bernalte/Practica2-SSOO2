@@ -21,11 +21,14 @@ palabra: $(DIROBJ)palabra.o
 $(DIROBJ)%.o: $(DIRSRC)%.cpp
 	$(CC) $(CFLAGS) $^ -o $@ $(LDLIBS)
 
-run:
-	./$(DIREXE)ssooiigle
 test:
-	./$(DIREXE)ssooiigle "21 LEYES DEL LIDERAZGO - JOHN C. MAXWELL.txt" LEY 2 
+	./$(DIREXE)ssooiigle "Prueba.txt" lineas 2
 
+test2:
+	./$(DIREXE)ssooiigle "21 LEYES DEL LIDERAZGO - JOHN C. MAXWELL.txt" del 1000
+
+test3:
+	./$(DIREXE)ssooiigle "17 LEYES DEL TRABAJO EN EQUIPO.txt" ley 50
 
 clean :
 	rm -rf *~ core $(DIROBJ) $(DIREXE)
