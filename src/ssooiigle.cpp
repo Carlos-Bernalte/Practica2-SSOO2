@@ -48,7 +48,6 @@ int main(int argc, char *argv[]){
     int nThreads;
     int nLines;
     int sizeForThreads;
-    bool correction = false;
     int begin, end;
     if(argc!=4){
         std::cerr <<ERROR("[ERROR]-- ")<<WARNING(UNDERLINE("Number of arguments is incorrect") ) <<std::endl;
@@ -65,17 +64,13 @@ int main(int argc, char *argv[]){
     sizeForThreads = nLines/nThreads;
     assignedLines=shareLines(file,nLines,nThreads);
     for (int i = 0; i < nThreads; i++) {
-        if(correction == false && nLines%nThreads!= 0){
-            begin=i*sizeForThreads+1;
-            end=(nLines%nThreads)*nThreads+1;
-            correction=true;
-        }else{
-            begin=i*sizeForThreads+1;
-            end=begin+sizeForThreads;
-        }
-      
-        vThreads.push_back(std::thread(find_word, i, assignedLines[i], begin, end, objective));
+        begin=i*sizeForThreads+1;
+        end=begin+sizeForThreads-1;
 
+        if(nLines%nThreads!= 0 && i==nThreads-1){ //Aquí se realiza un ajuste para el ultimo hilo en el caso que no sea exacta la división de total de lineas entre el número de hilos.
+            end++;
+        }
+        vThreads.push_back(std::thread(find_word, i, assignedLines[i], begin, end, objective));
     }
 
     std::for_each(vThreads.begin(), vThreads.end(), std::mem_fn(&std::thread::join));
@@ -120,24 +115,24 @@ int number_of_lines(std::string file){
 /* Es la función que ejecutaran los hilos y buscaran la palabra objetivo en el trozo de lineas asignado*/
 void find_word(int thread,std::vector<std::string> assignedLines, int begin, int end, std::string objective){
     std::string word;
-    std::string solution[3];
+    std::string solution[3]; //vector de 3 posiciones para guardar la palabra anterior (0), la palabra encontrada (1) y la palabra siguiente (2).
     std::vector<std::string> line;
     for(std::size_t nLine = 0; nLine < assignedLines.size(); nLine++){
         line = splitLine(assignedLines[nLine]);
-        solution[0]="";
+        solution[0]=""; //En caso que se salte a una nueva linea se reseteara el valor de la palabra anterior
         for(std::size_t position = 0; position< line.size(); position++){
             if(!analizeWord(objective).compare(analizeWord(line[position]))){
                 solution[1]=line[position];
-                if(position+1==line.size()){
+                if(position+1==line.size()){ // En el caso que se encuentre la palabra objetivo al final de la linea, el valor de la palabra siguiente sera nulo 
                     solution[2]="";
                 }else{
                     solution[2]=line[position+1];
                 }
                 Palabra wordFounded(objective, thread, begin, end, nLine+begin, solution[0], solution[1], solution[2]);
-                std::lock_guard<std::mutex> semaphore(access); //Aquí controlamos el acceso a la estructura de datos
+                std::lock_guard<std::mutex> semaphore(access); //Aquí bloquearemos el acceso a la estructura de datos
                 vPalabras[thread].push_back(wordFounded);
             }
-            solution[0]=line[position];
+            solution[0]=line[position];//Las palabras ya leidas paran a la varible palabra anterior.
         }
             
     }
@@ -145,10 +140,10 @@ void find_word(int thread,std::vector<std::string> assignedLines, int begin, int
 /* Se encarga de formatear una palabra para compararla con la con la palabra objetivo*/
 std::string analizeWord(std::string word){
     std::string result;
-    for (std::size_t i = 0; i < word.length(); i++) {
+    for (std::size_t i = 0; i < word.length(); i++) { //Esto sera para pasarlos a minuscula
         word[i] = tolower(word[i]);
     }
-     std::remove_copy_if(word.begin(), word.end(), std::back_inserter(result), std::ptr_fun<int, int>(&std::ispunct) );
+     std::remove_copy_if(word.begin(), word.end(), std::back_inserter(result), std::ptr_fun<int, int>(&std::ispunct));//Y esto para eliminar simbilos que no sean letras
     return result;
 }
 

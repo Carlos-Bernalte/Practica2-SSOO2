@@ -22,7 +22,7 @@ $(DIROBJ)%.o: $(DIRSRC)%.cpp
 	$(CC) $(CFLAGS) $^ -o $@ $(LDLIBS)
 
 test:
-	./$(DIREXE)ssooiigle "Prueba.txt" lineas 2
+	./$(DIREXE)ssooiigle "Prueba.txt" lineas 3
 
 test2:
 	./$(DIREXE)ssooiigle "21 LEYES DEL LIDERAZGO - JOHN C. MAXWELL.txt" del 1000
